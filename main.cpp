@@ -1,6 +1,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2\highgui.hpp>
 #include <opencv2\opencv.hpp>
+#include "BlinkManager.h"
 #include <iostream>
 using namespace cv;
 using namespace std;
@@ -9,6 +10,10 @@ using namespace std;
 //short program which shows how to convert an image into greyscale
 int main()
 {
+	BlinkManager blinkManager;
+	blinkManager.Init();
+	blinkManager.RunBlinkDetector();
+	/*
 	const string faceCascade = "C:\OpenCV - 3.1.0\opencv\build\etc\haarcascades";
 
 	//set up camera
@@ -33,5 +38,6 @@ int main()
 		if (waitKey(30) >= 0) break;
 
 	}
+	*/
 
 }
