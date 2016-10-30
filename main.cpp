@@ -10,8 +10,10 @@ using namespace std;
 //short program which shows how to convert an image into greyscale
 int main()
 {
-	BlinkManager blinkManager;
-	blinkManager.Init();
+	const string faceCascadeFile = "cascades\\haarcascade_frontalface_default.xml";
+	const string eyeCascadeFile = "cascades\\haarcascade_eye_tree_eyeglasses.xml";
+
+	BlinkManager blinkManager(faceCascadeFile,eyeCascadeFile);
 	blinkManager.RunBlinkDetector();
 	/*
 	const string faceCascade = "C:\OpenCV - 3.1.0\opencv\build\etc\haarcascades";
