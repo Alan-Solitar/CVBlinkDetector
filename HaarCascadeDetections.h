@@ -1,7 +1,9 @@
 #pragma once
 #ifndef HAAR_CASCADE_DETECTIONS_H
 #define HAAR_CASCADE_DETECTIONS_H
+
 #include<string>
+#include <vector>
 #include <opencv2/core/core.hpp>
 #include <opencv2\highgui.hpp>
 #include <opencv2\opencv.hpp>
@@ -16,6 +18,9 @@ namespace HaarDetections {
 	
 	//Detection function
 	Point DetectFace(CascadeClassifier faceClassifier, CascadeClassifier eyesClassifier, Mat &frame, Point currentCenter);
+	Rect DetectFace(CascadeClassifier faceClassifier, CascadeClassifier eyesClassifier, Mat &frame);
+	vector<Point2f > DetectFeaturePoints(Rect face);
+	void DrawFeatures(Mat &image, vector<Point2f>);
 	void DetectEyes(string cascadeClassifierFile);
 
 
