@@ -11,6 +11,23 @@ using namespace cv;
 
 namespace HaarDetections {
 
+	Rect DetectFace(CascadeClassifier faceClassifier, CascadeClassifier eyesClassifier, Mat &frame)
+	{
+		std::vector<Rect> faces;
+		Mat frame_gray;
+		Size currentSize;
+		Rect face;
+		//image preparation for face detection
+		cvtColor(frame, frame_gray, COLOR_BGR2GRAY);
+		equalizeHist(frame_gray, frame_gray);
+
+		//-- Detect faces
+		faceClassifier.detectMultiScale(frame_gray, faces, 1.1, 3, 0 | CASCADE_SCALE_IMAGE, Size(30, 30));
+		if(faces.size() > 0)
+			face = faces[0];
+		return face;
+
+	}
 	Point DetectFace(CascadeClassifier faceClassifier, CascadeClassifier eyesClassifier, Mat &frame, Point currentCenter)
 	{
 		int targetWidth = 8;
@@ -86,6 +103,19 @@ namespace HaarDetections {
 	void DetectEyes(CascadeClassifier eyeClassifier)
 	{
 
+	}
+	vector<Point2f > DetectFeaturePoints(Mat image,Rect face)
+	{
+		Mat faceImageGray;
+		Mat faceImage(image, face);
+		//cvtColor(faceImage, faceImageGray, COLOR_BGR2GRAY);
+		double qualityLevel=0.01;
+		double minDistance=30;
+		int maxCorners =30;
+		vector<Point2f>  corners;
+		corners.resize(maxCorners);
+		goodFeaturesToTrack(faceImage,corners, maxCorners, qualityLevel, minDistance);
+		return corners;
 	}
 
 }
