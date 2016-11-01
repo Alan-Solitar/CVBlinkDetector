@@ -45,12 +45,8 @@ void BlinkManager::RunBlinkDetector() {
 	Mat prevGray;
 	cvtColor(prevFrame, prevGray, COLOR_BGR2GRAY);
 	Rect face = DetectFace(faceCascade, eyeCascade, prevFrame);
-	vector<Point2f>  corners;
-	corners = DetectFeaturePoints(prevGray, face);
-	double qualityLevel = 0.01;
-	double minDistance = 30;
-	int maxCorners = 30;
-	goodFeaturesToTrack(prevGray, prevPoints, maxCorners, qualityLevel, minDistance);
+	prevPoints= DetectFeaturePoints(prevGray, face);
+	//goodFeaturesToTrack(prevGray, prevPoints, maxCorners, qualityLevel, minDistance);
 	//capture >> frame;
 	for (;;)
 	{
@@ -58,11 +54,16 @@ void BlinkManager::RunBlinkDetector() {
 		Mat frame;
 		Mat frameGray;
 		capture >> frame;
-		cvtColor(prevFrame, frameGray, COLOR_BGR2GRAY);
+		cvtColor(frame, frameGray, COLOR_BGR2GRAY);
 		vector<uchar> status;
 		vector<float>error;
 		calcOpticalFlowPyrLK(prevGray, frameGray, prevPoints, points,status,error);
-		//prevGray = frameGray;
+		for (auto i : points) {
+			line(frame,i, i, Scalar(230, 155, 255));
+		}
+
+		prevPoints = points;
+		prevGray = frameGray;
 		//corners.resize(maxCorners);
 		//Rect face =DetectFace(faceCascade, eyeCascade, frame);
 		//prevPoints = DetectFeaturePoints(frame, face);
@@ -73,7 +74,7 @@ void BlinkManager::RunBlinkDetector() {
 		//}
 		//GaussianBlur(frame, blurred, Size(9, 9), 1.5, 1.5);
 		//faceCenter = DetectFace(faceCascade, eyeCascade, frame,faceCenter);
-		//imshow("videoCapture", prevFrame);
-		//if (waitKey(30) >= 0) break;
+		imshow("videoCapture", frame);
+		if (waitKey(30) >= 0) break;
 	}
 }
