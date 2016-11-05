@@ -19,9 +19,8 @@ namespace HaarDetections {
 	//Detection function
 	Point DetectFace(CascadeClassifier faceClassifier, CascadeClassifier eyesClassifier, Mat &frame, Point currentCenter);
 	bool DetectFace(CascadeClassifier faceClassifier, CascadeClassifier eyesClassifier, Mat &frame, Rect &face);
-	vector<Point2f> DetectFeaturePoints(Mat image,Rect face);
-	void DrawFeatures(Mat &image, vector<Point2f>);
-	void DetectEyes(string cascadeClassifierFile);
+	vector<Point2f> DetectFeaturePoints(Mat image,Rect face, CascadeClassifier eyesClassifier);
+	vector<Rect> DetectEyes(CascadeClassifier eyesClassifier, Mat image, Rect face);
 
 
 

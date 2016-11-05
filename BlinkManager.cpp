@@ -54,7 +54,9 @@ void BlinkManager::RunBlinkDetector() {
 
 	Mat prevGray;
 	cvtColor(prevFrame, prevGray, COLOR_BGR2GRAY);
-	prevPoints= DetectFeaturePoints(prevGray, face);
+	equalizeHist(prevGray, prevGray);
+
+	prevPoints= DetectFeaturePoints(prevGray, face,eyeCascade);
 	//goodFeaturesToTrack(prevGray, prevPoints, maxCorners, qualityLevel, minDistance);
 	//capture >> frame;
 	
@@ -65,12 +67,18 @@ void BlinkManager::RunBlinkDetector() {
 		Mat frameGray;
 		capture >> frame;
 		cvtColor(frame, frameGray, COLOR_BGR2GRAY);
+		equalizeHist(frameGray, frameGray);
 		vector<uchar> status;
 		vector<float>error;
 		calcOpticalFlowPyrLK(prevGray, frameGray, prevPoints, points,status,error);
+		imwrite("1.jpg",prevGray);
+		imwrite("2.jpg", frameGray);
+		
 		for (auto i : points) {
 			line(frame,i, i, Scalar(230, 155, 255),5);
 		}
+		//rectangle(frame, points[0], points[3], Scalar(255, 0, 255), 2, 8, 0);
+		
 
 		prevPoints = points;
 		prevGray = frameGray;

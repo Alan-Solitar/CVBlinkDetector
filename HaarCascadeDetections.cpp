@@ -106,11 +106,24 @@ namespace HaarDetections {
 		}
 		return currentCenter;
 	}
-	void DetectEyes(CascadeClassifier eyeClassifier)
+	vector<Rect> DetectEyes(CascadeClassifier eyesClassifier,Mat image, Rect face)
 	{
+		std::vector<Rect> eyes;
+		while (eyes.size() != 2)
+		{
+			eyesClassifier.detectMultiScale(image, eyes, 1.1, 2, 0 | CASCADE_SCALE_IMAGE, Size(30, 30));
+		}
+		int counter = 0;
+		for (auto eye : eyes)
+		{
+			Mat eyeimage(image, eye);
+			imwrite(("eyeimage" + to_string(counter) + ".jpg"), eyeimage);
+			counter++;
+		}
+		return eyes;
 
 	}
-	vector<Point2f > DetectFeaturePoints(Mat image,Rect face)
+	vector<Point2f > DetectFeaturePoints(Mat image,Rect face, CascadeClassifier eyesClassifier)
 	{
 		Mat faceImageGray;
 		Mat faceImage(image, face);
@@ -128,24 +141,55 @@ namespace HaarDetections {
 		
 		//loop through and set all pixels not part of face to 0
 		//This will make feature point detection work better
+		/*
 		for (int i = 0; i < image.rows; i++) {
 			for (int j = 0; j < image.cols; j++) {
 				//apply condition here
-				if ((i>=x1) && (i <=x3) && (j>=y1 ) &&(j<=y2)) {
+				if ((j>=x1) && (j <=x3) && (i>=y1 ) &&(i<=y2)) {
 				}
 				else {
 					image.at<uchar>(i, j) = 0;
 				}
 			}
 		}
-		
-		imwrite("fullimage.jpg", image);
-		double qualityLevel=0.03;
-		double minDistance=5;
-		int maxCorners =10;
+		*/
+
 		vector<Point2f>  corners;
-		corners.resize(maxCorners);
-		goodFeaturesToTrack(faceImage,corners, maxCorners, qualityLevel, minDistance);
+		//Eye stuff
+
+		vector<Rect> eyes = DetectEyes(eyesClassifier, image, face);
+		
+
+		imwrite("fullimage.jpg", image);
+		double qualityLevel=0.02;
+		double minDistance=10;
+		int maxCorners =30;
+		corners.push_back(Point2f(x1, y1));
+		corners.push_back(Point2f(x2, y2));
+		corners.push_back(Point2f(x3, y3));
+		corners.push_back(Point2f(x4, y4));
+
+		//calculate points on eyes
+		for (int i = 0; i < eyes.size(); i++)
+		{
+			auto eye = eyes[i];
+			Point2f topLeftPt(eye.x, eye.y);
+			Point2f topRightPt(eye.x+eye.width, eye.y);
+			Point2f bottomRightPt(eye.x + eye.width, eye.y + eye.height);
+			Point2f bottomLeftPt(eye.x, eye.y+eye.width);
+			Point2f centerPt((topLeftPt.x + topRightPt.x) / 2, (topLeftPt.y + bottomLeftPt.y) / 2);
+
+
+
+			corners.push_back(topLeftPt);
+			corners.push_back(topRightPt);
+			corners.push_back(bottomRightPt);
+			corners.push_back(bottomLeftPt);
+			corners.push_back(centerPt);
+			//rectangle(image, pt1, pt2, Scalar(255, 0, 255), 2, 8, 0);
+
+		}
+		//goodFeaturesToTrack(image,corners, maxCorners, qualityLevel, minDistance);
 		return corners;
 	}
 

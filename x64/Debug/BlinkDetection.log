@@ -4,5 +4,13 @@ c:\opencv-3.1.0\opencv\build\include\opencv2\core\mat.hpp(1965): warning C4819: 
 c:\opencv-3.1.0\opencv\build\include\opencv2\core\persistence.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (932). Save the file in Unicode format to prevent data loss
 c:\opencv-3.1.0\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (932). Save the file in Unicode format to prevent data loss
 c:\opencv-3.1.0\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (932). Save the file in Unicode format to prevent data loss
+c:\users\burstlinker 2\documents\visual studio 2015\projects\blinkdetection\blinkdetection\haarcascadedetections.cpp(167): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\burstlinker 2\documents\visual studio 2015\projects\blinkdetection\blinkdetection\haarcascadedetections.cpp(168): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\burstlinker 2\documents\visual studio 2015\projects\blinkdetection\blinkdetection\haarcascadedetections.cpp(169): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\burstlinker 2\documents\visual studio 2015\projects\blinkdetection\blinkdetection\haarcascadedetections.cpp(170): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\burstlinker 2\documents\visual studio 2015\projects\blinkdetection\blinkdetection\haarcascadedetections.cpp(176): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\burstlinker 2\documents\visual studio 2015\projects\blinkdetection\blinkdetection\haarcascadedetections.cpp(177): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\burstlinker 2\documents\visual studio 2015\projects\blinkdetection\blinkdetection\haarcascadedetections.cpp(178): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\burstlinker 2\documents\visual studio 2015\projects\blinkdetection\blinkdetection\haarcascadedetections.cpp(179): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   BlinkDetection.vcxproj -> C:\Users\BurstLinker 2\Documents\Visual Studio 2015\Projects\BlinkDetection\BlinkDetection\x64\Debug\BlinkDetection.exe
   BlinkDetection.vcxproj -> C:\Users\BurstLinker 2\Documents\Visual Studio 2015\Projects\BlinkDetection\BlinkDetection\x64\Debug\BlinkDetection.pdb (Partial PDB)
