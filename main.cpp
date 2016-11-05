@@ -13,33 +13,7 @@ int main()
 	const string faceCascadeFile = "cascades\\haarcascade_frontalface_default.xml";
 	const string eyeCascadeFile = "cascades\\haarcascade_eye_tree_eyeglasses.xml";
 
-	BlinkManager blinkManager(faceCascadeFile,eyeCascadeFile);
+	BlinkManager blinkManager(faceCascadeFile, eyeCascadeFile);
 	blinkManager.RunBlinkDetector();
-	/*
-	const string faceCascade = "C:\OpenCV - 3.1.0\opencv\build\etc\haarcascades";
-
-	//set up camera
-	VideoCapture capture(0);
-	if (!capture.isOpened())
-		cout << "No camera or problem with camera" << endl;
-
-	//window to display camera capture
-	namedWindow("videoCapture", 1);
-	namedWindow("blur", 1);
-	//main loop
-	for (;;) 
-	{
-		//Get new frame from buffer
-		Mat frame;
-		capture >> frame;
-		Mat blurred;
-		//some smoothing
-		GaussianBlur(frame, blurred, Size(9, 9), 1.5, 1.5);
-		imshow("videoCapture", frame);
-		imshow("blur", blurred);
-		if (waitKey(30) >= 0) break;
-
-	}
-	*/
 
 }

@@ -11,21 +11,27 @@ using namespace cv;
 
 namespace HaarDetections {
 
-	Rect DetectFace(CascadeClassifier faceClassifier, CascadeClassifier eyesClassifier, Mat &frame)
+	bool DetectFace(CascadeClassifier faceClassifier, CascadeClassifier eyesClassifier, Mat &frame, Rect &face)
 	{
+
 		std::vector<Rect> faces;
 		Mat frame_gray;
 		Size currentSize;
-		Rect face;
 		//image preparation for face detection
 		cvtColor(frame, frame_gray, COLOR_BGR2GRAY);
 		equalizeHist(frame_gray, frame_gray);
 
 		//-- Detect faces
 		faceClassifier.detectMultiScale(frame_gray, faces, 1.1, 3, 0 | CASCADE_SCALE_IMAGE, Size(30, 30));
-		if(faces.size() > 0)
-			face = faces[0];
-		return face;
+
+		if (faces.size() <= 0)
+			return false;
+		for (int i = 0; i < faces.size(); i++)
+		{
+			if (faces[i].area() > face.area())
+				face = faces[i];
+		}
+		return true;
 
 	}
 	Point DetectFace(CascadeClassifier faceClassifier, CascadeClassifier eyesClassifier, Mat &frame, Point currentCenter)
@@ -108,10 +114,35 @@ namespace HaarDetections {
 	{
 		Mat faceImageGray;
 		Mat faceImage(image, face);
-		//cvtColor(faceImage, faceImageGray, COLOR_BGR2GRAY);
-		double qualityLevel=0.01;
-		double minDistance=30;
-		int maxCorners =30;
+		imwrite("faceimage.jpg", faceImage);
+		int x1, x2, x3, x4, y1, y2, y3, y4;
+
+		x1 = face.x;
+		y1 = face.y;
+		x2 = x1;
+		y2 = face.y + face.height;
+		x3 = face.x + face.width;
+		y3 = y1;
+		x4 = x3;
+		y4 = y2;
+		
+		//loop through and set all pixels not part of face to 0
+		//This will make feature point detection work better
+		for (int i = 0; i < image.rows; i++) {
+			for (int j = 0; j < image.cols; j++) {
+				//apply condition here
+				if ((i>=x1) && (i <=x3) && (j>=y1 ) &&(j<=y2)) {
+				}
+				else {
+					image.at<uchar>(i, j) = 0;
+				}
+			}
+		}
+		
+		imwrite("fullimage.jpg", image);
+		double qualityLevel=0.03;
+		double minDistance=5;
+		int maxCorners =10;
 		vector<Point2f>  corners;
 		corners.resize(maxCorners);
 		goodFeaturesToTrack(faceImage,corners, maxCorners, qualityLevel, minDistance);
