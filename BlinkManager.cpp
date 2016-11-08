@@ -31,6 +31,10 @@ bool BlinkManager::InitCamera() {
 }
 void BlinkManager::RunBlinkDetector() {
 	
+	//blink variables
+	Scalar eyeColor;
+	Scalar skinColor;
+
 	//window to display camera capture
 	namedWindow("videoCapture", 1);
 	Point faceCenter{ 0,0 };

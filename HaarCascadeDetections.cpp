@@ -130,6 +130,7 @@ namespace HaarDetections {
 		imwrite("faceimage.jpg", faceImage);
 		int x1, x2, x3, x4, y1, y2, y3, y4;
 
+		//get values for points to be tracked
 		x1 = face.x;
 		y1 = face.y;
 		x2 = x1;
@@ -154,7 +155,7 @@ namespace HaarDetections {
 		}
 		*/
 
-		vector<Point2f>  corners;
+		vector<Point2f>  points;
 		//Eye stuff
 
 		vector<Rect> eyes = DetectEyes(eyesClassifier, image, face);
@@ -163,11 +164,11 @@ namespace HaarDetections {
 		imwrite("fullimage.jpg", image);
 		double qualityLevel=0.02;
 		double minDistance=10;
-		int maxCorners =30;
-		corners.push_back(Point2f(x1, y1));
-		corners.push_back(Point2f(x2, y2));
-		corners.push_back(Point2f(x3, y3));
-		corners.push_back(Point2f(x4, y4));
+		int maxpoints =30;
+		points.push_back(Point2f(x1, y1));
+		points.push_back(Point2f(x2, y2));
+		points.push_back(Point2f(x3, y3));
+		points.push_back(Point2f(x4, y4));
 
 		//calculate points on eyes
 		for (int i = 0; i < eyes.size(); i++)
@@ -178,19 +179,29 @@ namespace HaarDetections {
 			Point2f bottomRightPt(eye.x + eye.width, eye.y + eye.height);
 			Point2f bottomLeftPt(eye.x, eye.y+eye.width);
 			Point2f centerPt((topLeftPt.x + topRightPt.x) / 2, (topLeftPt.y + bottomLeftPt.y) / 2);
+			Point2f centerLeftPt(topLeftPt.x, (topLeftPt.y + bottomLeftPt.y) / 2);
+			Point2f centerRightPt(topRightPt.x, (topLeftPt.y + bottomLeftPt.y) / 2);
 
+			
+			//push points into vector
+			points.push_back(topLeftPt);
+			points.push_back(topRightPt);
+			points.push_back(bottomRightPt);
+			points.push_back(bottomLeftPt);
+			points.push_back(centerPt);
+			points.push_back(centerLeftPt);
+			points.push_back(centerRightPt);
 
-
-			corners.push_back(topLeftPt);
-			corners.push_back(topRightPt);
-			corners.push_back(bottomRightPt);
-			corners.push_back(bottomLeftPt);
-			corners.push_back(centerPt);
+			for (auto pt : points)
+			{
+				cout << pt.x << " " <<pt.y<<" "<<image.at<Vec3b>(pt.x,pt.y) << endl;
+			}
 			//rectangle(image, pt1, pt2, Scalar(255, 0, 255), 2, 8, 0);
 
 		}
-		//goodFeaturesToTrack(image,corners, maxCorners, qualityLevel, minDistance);
-		return corners;
+		//goodFeaturesToTrack(image,points, maxpoints, qualityLevel, minDistance);
+		
+		return points;
 	}
 
 }
