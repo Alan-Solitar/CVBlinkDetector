@@ -8,7 +8,8 @@ BlinkManager::BlinkManager(const string &faceCascadeFile, const string eyeCascad
  	SetCascades(faceCascadeFile, eyeCascadeFile);
 	Init();
 }
-bool BlinkManager::SetCascades(const string &faceCascadeFile, const string eyeCascadeFile) {
+bool BlinkManager::SetCascades(const string &faceCascadeFile, const string eyeCascadeFile)
+{
 	
 	//load face cascade
 	if (!faceCascade.load(faceCascadeFile))
@@ -20,7 +21,8 @@ bool BlinkManager::SetCascades(const string &faceCascadeFile, const string eyeCa
 	return true;
 }
 
-bool BlinkManager::Init() {
+bool BlinkManager::Init() 
+{
 	bool allGood = true;
 	allGood = InitCamera();
 	return allGood;
@@ -29,7 +31,40 @@ bool BlinkManager::InitCamera() {
 	capture = VideoCapture(0);
 	return capture.isOpened();
 }
-void BlinkManager::RunBlinkDetector() {
+bool BlinkManager::basicDetection(Mat &prevGray, Rect &face, vector<Point2f> &points)
+{
+	Mat prevFrame;
+	capture >> prevFrame;
+	bool foundFace = DetectFace(faceCascade, eyeCascade, prevFrame, face);
+
+
+	cvtColor(prevFrame, prevGray, COLOR_BGR2GRAY);
+	equalizeHist(prevGray, prevGray);
+
+	bool foundEyes = DetectFeaturePoints(prevGray, face, eyeCascade, points);
+	
+	return foundFace && foundEyes;
+
+}
+
+
+
+bool BlinkManager::CheckForOutOfBoundsPoints(vector<Point2f> &points, int &rows, int &columns)
+{
+	int count = 0;
+	int maxOutOfBoundsPoints = 8;
+	for (auto &point : points)
+	{
+		cout << point.x << ", " << point.y << endl;
+		if (point.x < 0 || point.x > columns || point.y < 0 || point.y > rows)
+			count++;
+	}
+	bool outOfBounds = count > maxOutOfBoundsPoints ? true : false;
+	return outOfBounds;
+}
+
+void BlinkManager::RunBlinkDetector() 
+{
 	
 	//blink variables
 	Scalar eyeColor;
@@ -39,33 +74,45 @@ void BlinkManager::RunBlinkDetector() {
 	namedWindow("videoCapture", 1);
 	Point faceCenter{ 0,0 };
 	//main loop
-	Mat prevFrame;
 	
 	//feature points
 	vector<Point2f> prevPoints;
 	vector<Point2f> points;
 	
 	bool foundFace = false;
+	bool foundEyes = false;
 	Rect face;
-
-	//keep running loop until a face is found
-	while (!foundFace)
-	{
-		capture >> prevFrame;
-		foundFace = DetectFace(faceCascade, eyeCascade, prevFrame,face);
-	}
-	
-
 	Mat prevGray;
-	cvtColor(prevFrame, prevGray, COLOR_BGR2GRAY);
-	equalizeHist(prevGray, prevGray);
+	//keep running loop until a face is found
+	/*
+	while (!foundFace || !foundEyes)
+	{
+		Mat prevFrame;
+		capture >> prevFrame;
+		foundFace = DetectFace(faceCascade, eyeCascade, prevFrame, face);
 
-	prevPoints= DetectFeaturePoints(prevGray, face,eyeCascade);
+		
+		cvtColor(prevFrame, prevGray, COLOR_BGR2GRAY);
+		equalizeHist(prevGray, prevGray);
+
+		foundEyes = DetectFeaturePoints(prevGray, face, eyeCascade,prevPoints);
+	}
+	*/
+	while (!basicDetection(prevGray, face,prevPoints));
 	//goodFeaturesToTrack(prevGray, prevPoints, maxCorners, qualityLevel, minDistance);
 	//capture >> frame;
-	
+	int min_points = 5;
+	int rows = prevGray.rows;
+	int columns = prevGray.cols;
 	for (;;)
 	{
+		cout << prevPoints.size() << endl;
+		
+		bool outOfBounds = CheckForOutOfBoundsPoints(prevPoints, rows, columns);
+		if (outOfBounds)
+		{
+			while (!basicDetection(prevGray, face, prevPoints));
+		}
 		//Get new frame from buffer
 		Mat frame;
 		Mat frameGray;
@@ -81,7 +128,7 @@ void BlinkManager::RunBlinkDetector() {
 		for (auto i : points) {
 			line(frame,i, i, Scalar(230, 155, 255),5);
 		}
-		//rectangle(frame, points[0], points[3], Scalar(255, 0, 255), 2, 8, 0);
+		rectangle(frame, points[0], points[3], Scalar(255, 0, 255), 2, 8, 0);
 		
 
 		prevPoints = points;

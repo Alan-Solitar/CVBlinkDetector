@@ -28,7 +28,8 @@ public:
 	bool Init();
 	bool SetCascades(const string &faceCascadeFile, const string eyeCascadeFile);
 	void RunBlinkDetector();
-	
+	bool basicDetection(Mat &prevGray, Rect &face, vector<Point2f> &points);
+	bool CheckForOutOfBoundsPoints(vector<Point2f> &points, int &rows, int &columns);
 
 
 

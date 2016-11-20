@@ -106,13 +106,12 @@ namespace HaarDetections {
 		}
 		return currentCenter;
 	}
-	vector<Rect> DetectEyes(CascadeClassifier eyesClassifier,Mat image, Rect face)
+	bool DetectEyes(CascadeClassifier eyesClassifier,Mat image, Rect face, std::vector<Rect> &eyes)
 	{
-		std::vector<Rect> eyes;
-		while (eyes.size() != 2)
-		{
-			eyesClassifier.detectMultiScale(image, eyes, 1.1, 2, 0 | CASCADE_SCALE_IMAGE, Size(30, 30));
-		}
+		eyes.clear();
+  		eyesClassifier.detectMultiScale(image, eyes, 1.1, 2, 0 | CASCADE_SCALE_IMAGE, Size(30, 30));
+		if (eyes.size() != 2)
+			return false;
 		int counter = 0;
 		for (auto eye : eyes)
 		{
@@ -120,11 +119,16 @@ namespace HaarDetections {
 			imwrite(("eyeimage" + to_string(counter) + ".jpg"), eyeimage);
 			counter++;
 		}
-		return eyes;
+		return true;
 
 	}
-	vector<Point2f > DetectFeaturePoints(Mat image,Rect face, CascadeClassifier eyesClassifier)
+	bool DetectFeaturePoints(Mat image,Rect face, CascadeClassifier eyesClassifier, vector<Point2f> &points)
 	{
+		points.clear();
+		vector<Rect> eyes;
+		bool foundEyes = DetectEyes(eyesClassifier, image, face, eyes);
+		if (!foundEyes)
+			return false;
 		Mat faceImageGray;
 		Mat faceImage(image, face);
 		imwrite("faceimage.jpg", faceImage);
@@ -155,14 +159,12 @@ namespace HaarDetections {
 		}
 		*/
 
-		vector<Point2f>  points;
 		//Eye stuff
 
-		vector<Rect> eyes = DetectEyes(eyesClassifier, image, face);
 		
 
 		imwrite("fullimage.jpg", image);
-		double qualityLevel=0.02;
+ 		double qualityLevel=0.02;
 		double minDistance=10;
 		int maxpoints =30;
 		points.push_back(Point2f(x1, y1));
@@ -194,14 +196,14 @@ namespace HaarDetections {
 
 			for (auto pt : points)
 			{
-				cout << pt.x << " " <<pt.y<<" "<<image.at<Vec3b>(pt.x,pt.y) << endl;
+				//cout << pt.x << " " <<pt.y<<" "<<image.at<Vec3b>(pt.x,pt.y) << endl;
 			}
 			//rectangle(image, pt1, pt2, Scalar(255, 0, 255), 2, 8, 0);
 
 		}
 		//goodFeaturesToTrack(image,points, maxpoints, qualityLevel, minDistance);
 		
-		return points;
+		return true;
 	}
 
 }
