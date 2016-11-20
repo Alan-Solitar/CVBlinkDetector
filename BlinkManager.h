@@ -30,7 +30,7 @@ public:
 	void RunBlinkDetector();
 	bool basicDetection(Mat &prevGray, Rect &face, vector<Point2f> &points);
 	bool CheckForOutOfBoundsPoints(vector<Point2f> &points, int &rows, int &columns);
-
+	void DisplayMessage(Mat &image, const string &message, Scalar color, int x, int y);
 
 
 };

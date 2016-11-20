@@ -63,6 +63,18 @@ bool BlinkManager::CheckForOutOfBoundsPoints(vector<Point2f> &points, int &rows,
 	return outOfBounds;
 }
 
+void BlinkManager::DisplayMessage(Mat &image, const string &message, Scalar color, int x, int y)
+{
+	putText(image,
+		message,
+		cv::Point(x, y), // Coordinates
+		cv::FONT_HERSHEY_COMPLEX_SMALL, // Font
+		2.0, // Scale. 2.0 = 2x bigger
+		color, // Color
+		1, // Thickness
+		CV_AA);
+
+}
 void BlinkManager::RunBlinkDetector() 
 {
 	
@@ -104,6 +116,8 @@ void BlinkManager::RunBlinkDetector()
 	int min_points = 5;
 	int rows = prevGray.rows;
 	int columns = prevGray.cols;
+	string text = "Feature Points Lost\n Please reposition yourself";
+
 	for (;;)
 	{
 		cout << prevPoints.size() << endl;
@@ -111,6 +125,19 @@ void BlinkManager::RunBlinkDetector()
 		bool outOfBounds = CheckForOutOfBoundsPoints(prevPoints, rows, columns);
 		if (outOfBounds)
 		{
+			Scalar color(0, 255, 0);
+
+			string m1, m2;
+			m1 = "Feature Points Lost";
+			m2 = "Reposition Yourself";
+			cout << text << endl;
+			Mat tempFrame;
+			capture >> tempFrame;
+			DisplayMessage(tempFrame, m1, color, 100, 200);
+			DisplayMessage(tempFrame, m2, color, 100, 150);
+
+			imshow("videoCapture", tempFrame);
+			if (waitKey(30) >= 0) break;
 			while (!basicDetection(prevGray, face, prevPoints));
 		}
 		//Get new frame from buffer
@@ -128,13 +155,13 @@ void BlinkManager::RunBlinkDetector()
 		for (auto i : points) {
 			line(frame,i, i, Scalar(230, 155, 255),5);
 		}
-		rectangle(frame, points[0], points[3], Scalar(255, 0, 255), 2, 8, 0);
+		cv::rectangle(frame, points[0], points[3], Scalar(255, 0, 255), 2, 8, 0);
 		
 
 		prevPoints = points;
 		prevGray = frameGray;
 		
-		imshow("videoCapture", frame);
+		cv::imshow("videoCapture", frame);
 		if (waitKey(30) >= 0) break;
 	}
 	
