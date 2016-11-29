@@ -16,20 +16,21 @@ class BlinkDetector
 {
 public:
 	static uint blinkCounter;
-	static BlinkDetector *bt;
+	
 	BlinkDetector();
 	static bool eyeStatus;
 	static Mat eyeOne;
 	static Mat eyeTwo;
-	static BlinkDetector *GetInstance()
+	static BlinkDetector* GetInstance()
 	{
-		if (!bt)
-			bt = new BlinkDetector;
-		return bt;
+		if (!BlinkDetector::bt)
+			BlinkDetector::bt = new BlinkDetector;
+		return BlinkDetector::bt;
 	}
 	bool OpenEyeDetectedFromTemplate(Mat &image, Mat &resultImage, bool firstTemplate = true);
-	bool CheckForBlink(Mat &image, Mat leftEye,Mat rightEye, Mat &resultImage);
-
+	//bool CheckForBlink(Mat &image, Mat leftEye,Mat rightEye, Mat &resultImage);
+private:
+	static BlinkDetector *bt;
 
 };
 

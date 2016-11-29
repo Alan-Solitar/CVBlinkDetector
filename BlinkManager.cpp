@@ -43,14 +43,12 @@ bool BlinkManager::basicDetection(Mat &prevGray, Rect &face, vector<Point2f> &po
 	capture >> prevFrame;
 	bool foundFace = DetectFace(faceCascade, eyeCascade, prevFrame, face);
 
-
 	cvtColor(prevFrame, prevGray, COLOR_BGR2GRAY);
 	equalizeHist(prevGray, prevGray);
 
 	bool foundEyes = DetectFeaturePoints(prevGray, face, eyeCascade, points,prevFrame);
 	
 	return foundFace && foundEyes;
-
 }
 
 
@@ -79,13 +77,13 @@ void BlinkManager::DisplayMessage(Mat &image, const string &message, Scalar colo
 		color, // Color
 		1, // Thickness
 		CV_AA);
-
 }
+
 bool BlinkManager::CheckEyeStatus(Mat &frame,Mat &processedFrame)
 {
-	blinkDetector.OpenEyeDetectedFromTemplate(frame, processedFrame);
-	blinkDetector.OpenEyeDetectedFromTemplate(frame, processedFrame,false);
-
+	blinkDetector->OpenEyeDetectedFromTemplate(frame, processedFrame);
+	blinkDetector->OpenEyeDetectedFromTemplate(frame, processedFrame,false);
+	return true;
 }
 void BlinkManager::RunBlinkDetector() 
 {
@@ -96,6 +94,7 @@ void BlinkManager::RunBlinkDetector()
 
 	//window to display camera capture
 	namedWindow("videoCapture", 1);
+	namedWindow("videoCapture2", 1);
 	Point faceCenter{ 0,0 };
 	//main loop
 	
@@ -125,6 +124,7 @@ void BlinkManager::RunBlinkDetector()
 	while (!basicDetection(prevGray, face,prevPoints));
 	cout << BlinkDetector::eyeOne.cols << endl;
 	cout << BlinkDetector::eyeTwo.cols << endl;
+	
 
 
 	int min_points = 7;
@@ -154,12 +154,18 @@ void BlinkManager::RunBlinkDetector()
 			if (waitKey(30) >= 0) break;
 			while (!basicDetection(prevGray, face, prevPoints));
 		}
+
 		//Get new frame from buffer
-		Mat frame;
+		Mat frame, templateProcessedFrame;
 		Mat frameGray;
 		capture >> frame;
+
 		cvtColor(frame, frameGray, COLOR_BGR2GRAY);
 		equalizeHist(frameGray, frameGray);
+
+		Mat resultFrame;
+		CheckEyeStatus(frameGray, templateProcessedFrame);
+
 		vector<uchar> status;
 		vector<float>error;
 		calcOpticalFlowPyrLK(prevGray, frameGray, prevPoints, points,status,error);
@@ -179,6 +185,8 @@ void BlinkManager::RunBlinkDetector()
 		prevGray = frameGray;
 		
 		cv::imshow("videoCapture", frame);
+		cv::imshow("videoCapture2", templateProcessedFrame);
+
 		if (waitKey(30) >= 0) break;
 	}
 	

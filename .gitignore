@@ -36,9 +36,8 @@
 ehthumbs.db
 Thumbs.db
 
-# Other #
+# Visual Studio Stuff #
 ######################
-*.jpg
 Debug/*
 x64/Debug/*
 .vs/BlinkDetection/v14/*
@@ -48,3 +47,7 @@ x64/Debug/*
 *.vcxproj
 *.filters
 *.user
+
+# Other #
+######################
+*.jpg

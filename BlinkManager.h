@@ -9,15 +9,15 @@
 #include <opencv2\imgproc.hpp>
 #include <opencv2\objdetect.hpp>
 #include <iostream>
+#include "BlinkDetector.h"
 using namespace cv;
 using namespace std;
 
 //Class to handle all functionality related to Blink Detection
-class BlinkManager {
-	//vars
+class BlinkManager 
+{
 private:
-	BlinkManager* bManager;
-	BlinkDetector blinkDetector;
+	BlinkDetector* blinkDetector;
 	VideoCapture capture;
 	cv::CascadeClassifier faceCascade;
 	cv::CascadeClassifier eyeCascade;
