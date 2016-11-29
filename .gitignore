@@ -1,0 +1,10 @@
+*.jpg
+Debug/*
+x64/Debug/*
+.vs/BlinkDetection/v14/*
+*.opendb
+*.db
+*.sln
+*.vcxproj
+*.filters
+*.user

@@ -1,12 +1,18 @@
 
-#include "BlinkManager.h";
-#include "HaarCascadeDetections.h"
+#include "BlinkManager.h"
+#include "BlinkDetector.h"
+#include "Detections.h"
+#include <exception>
 
 using namespace HaarDetections;
+using namespace SkinDetections;
 
 BlinkManager::BlinkManager(const string &faceCascadeFile, const string eyeCascadeFile) {
  	SetCascades(faceCascadeFile, eyeCascadeFile);
-	Init();
+	blinkDetector = BlinkDetector::GetInstance();
+	bool initSuceeded = Init();
+	if (!initSuceeded)
+		throw exception("Something bad happened -- maybe consider a using a camera.");
 }
 bool BlinkManager::SetCascades(const string &faceCascadeFile, const string eyeCascadeFile)
 {
@@ -41,7 +47,7 @@ bool BlinkManager::basicDetection(Mat &prevGray, Rect &face, vector<Point2f> &po
 	cvtColor(prevFrame, prevGray, COLOR_BGR2GRAY);
 	equalizeHist(prevGray, prevGray);
 
-	bool foundEyes = DetectFeaturePoints(prevGray, face, eyeCascade, points);
+	bool foundEyes = DetectFeaturePoints(prevGray, face, eyeCascade, points,prevFrame);
 	
 	return foundFace && foundEyes;
 
@@ -55,7 +61,7 @@ bool BlinkManager::CheckForOutOfBoundsPoints(vector<Point2f> &points, int &rows,
 	int maxOutOfBoundsPoints = 8;
 	for (auto &point : points)
 	{
-		cout << point.x << ", " << point.y << endl;
+		//cout << point.x << ", " << point.y << endl;
 		if (point.x < 0 || point.x > columns || point.y < 0 || point.y > rows)
 			count++;
 	}
@@ -73,6 +79,12 @@ void BlinkManager::DisplayMessage(Mat &image, const string &message, Scalar colo
 		color, // Color
 		1, // Thickness
 		CV_AA);
+
+}
+bool BlinkManager::CheckEyeStatus(Mat &frame,Mat &processedFrame)
+{
+	blinkDetector.OpenEyeDetectedFromTemplate(frame, processedFrame);
+	blinkDetector.OpenEyeDetectedFromTemplate(frame, processedFrame,false);
 
 }
 void BlinkManager::RunBlinkDetector() 
@@ -111,16 +123,18 @@ void BlinkManager::RunBlinkDetector()
 	}
 	*/
 	while (!basicDetection(prevGray, face,prevPoints));
-	//goodFeaturesToTrack(prevGray, prevPoints, maxCorners, qualityLevel, minDistance);
-	//capture >> frame;
-	int min_points = 5;
+	cout << BlinkDetector::eyeOne.cols << endl;
+	cout << BlinkDetector::eyeTwo.cols << endl;
+
+
+	int min_points = 7;
 	int rows = prevGray.rows;
 	int columns = prevGray.cols;
 	string text = "Feature Points Lost\n Please reposition yourself";
 
 	for (;;)
 	{
-		cout << prevPoints.size() << endl;
+		//cout << prevPoints.size() << endl;
 		
 		bool outOfBounds = CheckForOutOfBoundsPoints(prevPoints, rows, columns);
 		if (outOfBounds)
@@ -130,7 +144,7 @@ void BlinkManager::RunBlinkDetector()
 			string m1, m2;
 			m1 = "Feature Points Lost";
 			m2 = "Reposition Yourself";
-			cout << text << endl;
+			//cout << text << endl;
 			Mat tempFrame;
 			capture >> tempFrame;
 			DisplayMessage(tempFrame, m1, color, 100, 200);
@@ -149,9 +163,12 @@ void BlinkManager::RunBlinkDetector()
 		vector<uchar> status;
 		vector<float>error;
 		calcOpticalFlowPyrLK(prevGray, frameGray, prevPoints, points,status,error);
+
+		//output images for testing
 		imwrite("1.jpg",prevGray);
 		imwrite("2.jpg", frameGray);
 		
+		//draw the points on the image
 		for (auto i : points) {
 			line(frame,i, i, Scalar(230, 155, 255),5);
 		}

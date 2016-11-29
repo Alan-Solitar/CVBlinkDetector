@@ -124,13 +124,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BlinkDetector.cpp" />
     <ClCompile Include="BlinkManager.cpp" />
-    <ClCompile Include="HaarCascadeDetections.cpp" />
+    <ClCompile Include="Detections.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="SkinDetector.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BlinkDetector.h" />
     <ClInclude Include="BlinkManager.h" />
-    <ClInclude Include="HaarCascadeDetections.h" />
+    <ClInclude Include="Detections.h" />
+    <ClInclude Include="SkinDetector.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
