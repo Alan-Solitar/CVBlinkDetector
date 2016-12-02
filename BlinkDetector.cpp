@@ -1,7 +1,9 @@
 #include "BlinkDetector.h"
 
 uint BlinkDetector::blinkCounter;
-pair<bool,bool> BlinkDetector::eyeStatus;
+pair<bool,bool> BlinkDetector::previousEyeStatus;
+pair<bool, bool> BlinkDetector::currentEyeStatus;
+
 Mat BlinkDetector::eyeOne;
 Mat BlinkDetector::eyeTwo;
 BlinkDetector* BlinkDetector::bt;
@@ -10,12 +12,13 @@ BlinkDetector* BlinkDetector::bt;
 BlinkDetector::BlinkDetector()
 {
 	BlinkDetector::blinkCounter = 0;
-	BlinkDetector::eyeStatus = make_pair(true,true); //0 is closed, 1 is open
+	BlinkDetector::previousEyeStatus = make_pair(true,true); //0 is closed, 1 is open
+	BlinkDetector::currentEyeStatus = make_pair(true, true); //0 is closed, 1 is open
 	prevLocation = make_pair(Point(0, 0),Point(0,0));
 }
 bool BlinkDetector::OpenEyeDetectedFromTemplate(Mat &image, Mat &resultImage, bool firstTemplate)
 {
-	bool currentEyeStatus;
+	bool eyeStatus;
 	Mat templateImage;
 	if (firstTemplate)
 		templateImage = BlinkDetector::eyeOne;
@@ -62,30 +65,48 @@ bool BlinkDetector::OpenEyeDetectedFromTemplate(Mat &image, Mat &resultImage, bo
 		if (firstTemplate)
 		{
 			prevLocation.first = Point(rec.x + rec.width / 2, rec.y + rec.height / 2);
-			eyeStatus.first = currentEyeStatus = true;
+			currentEyeStatus.first = eyeStatus = true;
 		}
 		else
 		{
 			prevLocation.second = Point(rec.x + rec.width / 2, rec.y + rec.height / 2);
-			eyeStatus.second = currentEyeStatus = true;
+			currentEyeStatus.second = eyeStatus = true;
 		}
 	}
 	else 
 	{	
 		if (firstTemplate)
-			eyeStatus.first =currentEyeStatus= false;
+			currentEyeStatus.first =eyeStatus= false;
 		else
-			eyeStatus.second =currentEyeStatus = false;
+			currentEyeStatus.second =eyeStatus = false;
 	}
 	if(firstTemplate)
 		line(image, prevLocation.first, prevLocation.first, Scalar(230, 155, 255), 5);
 	else
 		line(image, prevLocation.second, prevLocation.second, Scalar(230, 155, 255), 5);
 
-	if(currentEyeStatus)
+	if(eyeStatus)
 		rectangle(image, matchLoc, Point(matchLoc.x + templateImage.cols, matchLoc.y + templateImage.rows), Scalar::all(0), 2, 8, 0);
 	rectangle(resultImage, matchLoc, Point(matchLoc.x + templateImage.cols, matchLoc.y + templateImage.rows), Scalar::all(0), 2, 8, 0);
-
 	return true;
+}
+bool BlinkDetector::UserBlinked()
+{
+	bool blinked = false;
+	if (previousEyeStatus.first || previousEyeStatus.second)
+	{
+		if (!currentEyeStatus.first || !currentEyeStatus.second)
+		{
+			blinked = true;
+			blinkCounter++;
+		}
+	}
+	previousEyeStatus =currentEyeStatus;
+	return blinked;
+}
+bool BlinkDetector::GetStatus()
+{
+	
+	return currentEyeStatus.first && currentEyeStatus.second;
 }
 

@@ -33,6 +33,12 @@ public:
 	bool CheckForOutOfBoundsPoints(vector<Point2f> &points, int &rows, int &columns);
 	void DisplayMessage(Mat &image, const string &message, Scalar color, int x, int y);
 	bool CheckEyeStatus(Mat &frame, Mat &processedFrame);
+	bool LogEyeStatus(bool status);
+	bool HandleBlink(bool blinked, Mat &frame);
+	const string BLINK_MSG = "Blink Detected";
+	const string BLINK_COUNTER_MSG_BASE = "Count: ";
+	string BLINK_COUNTER_MSG = BLINK_COUNTER_MSG_BASE;
+
 
 };
 

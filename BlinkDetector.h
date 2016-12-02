@@ -18,7 +18,9 @@ public:
 	static uint blinkCounter;
 	
 	BlinkDetector();
-	static pair<bool,bool> eyeStatus;
+	static pair<bool,bool> previousEyeStatus;
+	static pair<bool, bool> currentEyeStatus;
+
 	static Mat eyeOne;
 	static Mat eyeTwo;
 	pair<Point,Point> prevLocation;
@@ -28,6 +30,8 @@ public:
 			BlinkDetector::bt = new BlinkDetector;
 		return BlinkDetector::bt;
 	}
+	bool GetStatus();
+	bool UserBlinked();
 	bool OpenEyeDetectedFromTemplate(Mat &image, Mat &resultImage, bool firstTemplate = true);
 	//bool CheckForBlink(Mat &image, Mat leftEye,Mat rightEye, Mat &resultImage);
 private:

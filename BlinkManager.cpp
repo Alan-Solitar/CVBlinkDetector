@@ -83,6 +83,30 @@ bool BlinkManager::CheckEyeStatus(Mat &frame,Mat &processedFrame)
 {
 	blinkDetector->OpenEyeDetectedFromTemplate(frame, processedFrame);
 	blinkDetector->OpenEyeDetectedFromTemplate(frame, processedFrame,false);
+	LogEyeStatus(blinkDetector->GetStatus());
+	HandleBlink(blinkDetector->UserBlinked(),frame);
+	return true;
+}
+bool BlinkManager::HandleBlink(bool blinked, Mat &frame)
+{
+	if (BLINK_COUNTER_MSG == BLINK_COUNTER_MSG_BASE)
+		BLINK_COUNTER_MSG += blinkDetector->blinkCounter;
+	if (blinked)
+	{
+		DisplayMessage(frame, BLINK_MSG, Scalar(0, 255, 0), 50, 50);
+		BLINK_COUNTER_MSG = BLINK_COUNTER_MSG_BASE + to_string(blinkDetector->blinkCounter);
+	}
+	DisplayMessage(frame, BLINK_COUNTER_MSG, Scalar(0, 255, 0), 150, 50);
+
+	return true;
+
+}
+bool BlinkManager::LogEyeStatus(bool status)
+{
+	if (status)
+		cout << "Eyes Are Open" << endl;
+	else
+		cout << "Eyes Are Closed" << endl;
 	return true;
 }
 void BlinkManager::RunBlinkDetector() 
@@ -164,8 +188,9 @@ void BlinkManager::RunBlinkDetector()
 		equalizeHist(frameGray, frameGray);
 
 		Mat resultFrame;
+		//See if any blinks were detected
 		CheckEyeStatus(frameGray, templateProcessedFrame);
-
+		
 		vector<uchar> status;
 		vector<float>error;
 		calcOpticalFlowPyrLK(prevGray, frameGray, prevPoints, points,status,error);
