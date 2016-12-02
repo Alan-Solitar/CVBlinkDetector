@@ -106,7 +106,7 @@ namespace HaarDetections
 	bool DetectEyes(CascadeClassifier eyesClassifier,Mat image, Rect face, std::vector<Rect> &eyes, Mat prevFrame)
 	{
 		eyes.clear();
-  		eyesClassifier.detectMultiScale(image, eyes, 1.1, 2, 0 | CASCADE_SCALE_IMAGE, Size(30, 30));
+		eyesClassifier.detectMultiScale(image, eyes, 1.1, 2, 0 | CASCADE_SCALE_IMAGE, Size(30, 30));
 		if (eyes.size() != 2)
 			return false;
 		int counter = 0;
@@ -151,7 +151,7 @@ namespace HaarDetections
 		
 
 		imwrite("fullimage.jpg", image);
- 		double qualityLevel=0.02;
+		double qualityLevel=0.02;
 		double minDistance=10;
 		int maxpoints =30;
 		points.push_back(Point2f(x1, y1));

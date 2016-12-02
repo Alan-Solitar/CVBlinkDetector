@@ -18,9 +18,10 @@ public:
 	static uint blinkCounter;
 	
 	BlinkDetector();
-	static bool eyeStatus;
+	static pair<bool,bool> eyeStatus;
 	static Mat eyeOne;
 	static Mat eyeTwo;
+	pair<Point,Point> prevLocation;
 	static BlinkDetector* GetInstance()
 	{
 		if (!BlinkDetector::bt)

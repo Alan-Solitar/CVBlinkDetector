@@ -1,5 +1,5 @@
-	
 /*
+	
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include <iostream>
@@ -35,8 +35,6 @@ int main()
 	waitKey(0);
 	return 0;
 }
-
-
 void MatchingMethod(int, void*)
 {
 	/// Source image to display
@@ -78,6 +76,9 @@ void MatchingMethod(int, void*)
 	return;
 }
 */
+
+/*
+*/
 #include <opencv2/core/core.hpp>
 #include <opencv2\highgui.hpp>
 #include <opencv2\opencv.hpp>
@@ -86,10 +87,6 @@ void MatchingMethod(int, void*)
 #include "SkinDetector.h"
 using namespace cv;
 using namespace std;
-
-
-
-
 
 //short program which shows how to convert an image into greyscale
 int main()
@@ -103,8 +100,6 @@ int main()
 	//open capture object at location zero (default location for webcam)
 
 	capture.open(0);
-
-	
 
 	Mat cameraFeed;
 
@@ -132,5 +127,4 @@ int main()
 		waitKey(30);
 	}
 	return 0;
-
 }

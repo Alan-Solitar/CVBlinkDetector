@@ -8,7 +8,7 @@ using namespace HaarDetections;
 using namespace SkinDetections;
 
 BlinkManager::BlinkManager(const string &faceCascadeFile, const string eyeCascadeFile) {
- 	SetCascades(faceCascadeFile, eyeCascadeFile);
+	SetCascades(faceCascadeFile, eyeCascadeFile);
 	blinkDetector = BlinkDetector::GetInstance();
 	bool initSuceeded = Init();
 	if (!initSuceeded)
@@ -179,13 +179,15 @@ void BlinkManager::RunBlinkDetector()
 			line(frame,i, i, Scalar(230, 155, 255),5);
 		}
 		cv::rectangle(frame, points[0], points[3], Scalar(255, 0, 255), 2, 8, 0);
-		
+		cv::rectangle(frame, points[4], points[6], Scalar(255, 0, 255), 2, 8, 0);
+		cv::rectangle(frame, points[9], points[11], Scalar(255, 0, 255), 2, 8, 0);
+
 
 		prevPoints = points;
 		prevGray = frameGray;
 		
 		cv::imshow("videoCapture", frame);
-		cv::imshow("videoCapture2", templateProcessedFrame);
+		cv::imshow("videoCapture2", frameGray);
 
 		if (waitKey(30) >= 0) break;
 	}
