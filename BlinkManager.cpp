@@ -1,10 +1,15 @@
+//Written by Alan Solitar
+
 #include "BlinkManager.h"
 #include "BlinkDetector.h"
 #include "Detections.h"
 #include <exception>
+#include <iostream>
+#include <cstdio>
+#include <ctime>
+#include <iomanip>
 
 using namespace HaarDetections;
-using namespace SkinDetections;
 
 BlinkManager::BlinkManager(const string &faceCascadeFile, const string eyeCascadeFile) {
 	SetCascades(faceCascadeFile, eyeCascadeFile);
@@ -35,7 +40,7 @@ bool BlinkManager::InitCamera() {
 	capture = VideoCapture(0);
 	return capture.isOpened();
 }
-bool BlinkManager::basicDetection(Mat &prevGray, Rect &face, vector<Point2f> &points)
+bool BlinkManager::BasicDetection(Mat &prevGray, Rect &face, vector<Point2f> &points)
 {
 	Mat prevFrame;
 	capture >> prevFrame;
@@ -55,7 +60,6 @@ bool BlinkManager::CheckForOutOfBoundsPoints(vector<Point2f> &points, int &rows,
 	int maxOutOfBoundsPoints = 8;
 	for (auto &point : points)
 	{
-		//cout << point.x << ", " << point.y << endl;
 		if (point.x < 0 || point.x > columns || point.y < 0 || point.y > rows)
 			count++;
 	}
@@ -69,18 +73,21 @@ void BlinkManager::DisplayMessage(Mat &image, const string &message, Scalar colo
 		message,
 		cv::Point(x, y), // Coordinates
 		cv::FONT_HERSHEY_COMPLEX_SMALL, // Font
-		2.0, // Scale. 2.0 = 2x bigger
+		1.0, // Scale 
 		color, // Color
 		1, // Thickness
 		CV_AA);
 }
 
-bool BlinkManager::CheckEyeStatus(Mat &frame,Mat &processedFrame)
+bool BlinkManager::CheckEyeStatus(Mat &frame,Mat &processedFrame, Mat& colorFrame)
 {
-	blinkDetector->OpenEyeDetectedFromTemplate(frame, processedFrame);
-	blinkDetector->OpenEyeDetectedFromTemplate(frame, processedFrame,false);
+	//check both eyes
+	blinkDetector->OpenEyeDetectedFromTemplate(frame, processedFrame,colorFrame);
+	blinkDetector->OpenEyeDetectedFromTemplate(frame, processedFrame,colorFrame,false);
+	//log status to console
 	LogEyeStatus(blinkDetector->GetStatus());
-	HandleBlink(blinkDetector->UserBlinked(),frame);
+	//handle blink
+	HandleBlink(blinkDetector->UserBlinked(),colorFrame);
 	return true;
 }
 bool BlinkManager::HandleBlink(bool blinked, Mat &frame)
@@ -89,13 +96,18 @@ bool BlinkManager::HandleBlink(bool blinked, Mat &frame)
 		BLINK_COUNTER_MSG += blinkDetector->blinkCounter;
 	if (blinked)
 	{
-		DisplayMessage(frame, BLINK_MSG, Scalar(0, 255, 0), 50, 50);
 		BLINK_COUNTER_MSG = BLINK_COUNTER_MSG_BASE + to_string(blinkDetector->blinkCounter);
 	}
-	DisplayMessage(frame, BLINK_COUNTER_MSG, Scalar(0, 255, 0), 150, 50);
+	DisplayMessage(frame, BLINK_COUNTER_MSG, Scalar(0, 255, 0), 250, 30);
 
 	return true;
 
+}
+double BlinkManager::ComputeBlinksPerMinute(double duration,Mat &frame)
+{
+	double blinksPerMinute = blinkDetector->blinkCounter/(duration/60);
+	DisplayMessage(frame, BLINKS_PER_MINUTE_MSG + to_string(blinksPerMinute), Scalar(0, 255, 0), 50, 50);
+	return blinksPerMinute;
 }
 bool BlinkManager::LogEyeStatus(bool status)
 {
@@ -107,15 +119,14 @@ bool BlinkManager::LogEyeStatus(bool status)
 }
 void BlinkManager::RunBlinkDetector() 
 {
-	//blink variables
-	Scalar eyeColor;
-	Scalar skinColor;
+	//time variables
+	bool started = false;
+	std::clock_t start;
 
 	//window to display camera capture
 	namedWindow("videoCapture", 1);
 	namedWindow("videoCapture2", 1);
 	Point faceCenter{ 0,0 };
-	//main loop
 	
 	//feature points
 	vector<Point2f> prevPoints;
@@ -126,28 +137,32 @@ void BlinkManager::RunBlinkDetector()
 	Rect face;
 	Mat prevGray;
 
-	while (!basicDetection(prevGray, face,prevPoints));
-	cout << BlinkDetector::eyeOne.cols << endl;
-	cout << BlinkDetector::eyeTwo.cols << endl;
+	//loop until both face and 2 eyes are detected
+	while (!BasicDetection(prevGray, face,prevPoints));
 	
 	int min_points = 7;
 	int rows = prevGray.rows;
 	int columns = prevGray.cols;
 	string text = "Feature Points Lost\n Please reposition yourself";
 
+	//main loop
 	for (;;)
 	{
-		//cout << prevPoints.size() << endl;
 		
+		if (!started)
+		{
+			start = std::clock();
+			started = true;
+		}
+		
+		//Check if feature points are lost
 		bool outOfBounds = CheckForOutOfBoundsPoints(prevPoints, rows, columns);
 		if (outOfBounds)
 		{
 			Scalar color(0, 255, 0);
-
 			string m1, m2;
 			m1 = "Feature Points Lost";
 			m2 = "Reposition Yourself";
-			//cout << text << endl;
 			Mat tempFrame;
 			capture >> tempFrame;
 			DisplayMessage(tempFrame, m1, color, 100, 200);
@@ -155,7 +170,7 @@ void BlinkManager::RunBlinkDetector()
 
 			imshow("videoCapture", tempFrame);
 			if (waitKey(30) >= 0) break;
-			while (!basicDetection(prevGray, face, prevPoints));
+			while (!BasicDetection(prevGray, face, prevPoints));
 		}
 
 		//Get new frame from buffer
@@ -163,37 +178,41 @@ void BlinkManager::RunBlinkDetector()
 		Mat frameGray;
 		capture >> frame;
 
+		//convert to grayscale
 		cvtColor(frame, frameGray, COLOR_BGR2GRAY);
 		equalizeHist(frameGray, frameGray);
 
 		Mat resultFrame;
+		frame.copyTo(resultFrame);
+
 		//See if any blinks were detected
-		CheckEyeStatus(frameGray, templateProcessedFrame);
+		CheckEyeStatus(frameGray, templateProcessedFrame,resultFrame);
 		
+
+		//Optical Flow logic
 		vector<uchar> status;
 		vector<float>error;
 		calcOpticalFlowPyrLK(prevGray, frameGray, prevPoints, points,status,error);
 
-		//output images for testing
-		imwrite("1.jpg",prevGray);
-		imwrite("2.jpg", frameGray);
-		
-		//draw the points on the image
 		for (auto i : points) {
 			line(frame,i, i, Scalar(230, 155, 255),5);
 		}
-		cv::rectangle(frame, points[0], points[3], Scalar(255, 0, 255), 2, 8, 0);
-		cv::rectangle(frame, points[4], points[6], Scalar(255, 0, 255), 2, 8, 0);
-		cv::rectangle(frame, points[9], points[11], Scalar(255, 0, 255), 2, 8, 0);
-
 
 		prevPoints = points;
 		prevGray = frameGray;
-		
+		//optical flow logic ends
+
+		//blink logic
+		double duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
+		double blinksPerMinute = ComputeBlinksPerMinute(duration,resultFrame);
+
+		//cout << setprecision(2)<<blinksPerMinute<<endl;
 		cv::imshow("videoCapture", frame);
-		cv::imshow("videoCapture2", frameGray);
+		cv::imshow("videoCapture2", resultFrame);
 
 		if (waitKey(30) >= 0) break;
+		
+
 	}
 	
 }

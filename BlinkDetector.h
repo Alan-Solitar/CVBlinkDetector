@@ -1,3 +1,5 @@
+//Written by Alan Solitar
+
 #pragma once
 #ifndef BLINK_DETECTOR_H
 #define BLINK_DETECTOR_H
@@ -8,6 +10,8 @@
 #include <opencv2\imgproc.hpp>
 #include <opencv2\objdetect.hpp>
 #include <iostream>
+#include <string>
+
 
 using namespace cv;
 using namespace std;
@@ -32,7 +36,7 @@ public:
 	}
 	bool GetStatus();
 	bool UserBlinked();
-	bool OpenEyeDetectedFromTemplate(Mat &image, Mat &resultImage, bool firstTemplate = true);
+	bool OpenEyeDetectedFromTemplate(Mat &image, Mat &resultImage, Mat& colorFrame,bool firstTemplate = true );
 	//bool CheckForBlink(Mat &image, Mat leftEye,Mat rightEye, Mat &resultImage);
 private:
 	static BlinkDetector *bt;
