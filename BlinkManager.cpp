@@ -1,4 +1,3 @@
-
 #include "BlinkManager.h"
 #include "BlinkDetector.h"
 #include "Detections.h"
@@ -16,7 +15,6 @@ BlinkManager::BlinkManager(const string &faceCascadeFile, const string eyeCascad
 }
 bool BlinkManager::SetCascades(const string &faceCascadeFile, const string eyeCascadeFile)
 {
-	
 	//load face cascade
 	if (!faceCascade.load(faceCascadeFile))
 		return false;
@@ -50,8 +48,6 @@ bool BlinkManager::basicDetection(Mat &prevGray, Rect &face, vector<Point2f> &po
 	
 	return foundFace && foundEyes;
 }
-
-
 
 bool BlinkManager::CheckForOutOfBoundsPoints(vector<Point2f> &points, int &rows, int &columns)
 {
@@ -111,7 +107,6 @@ bool BlinkManager::LogEyeStatus(bool status)
 }
 void BlinkManager::RunBlinkDetector() 
 {
-	
 	//blink variables
 	Scalar eyeColor;
 	Scalar skinColor;
@@ -130,27 +125,11 @@ void BlinkManager::RunBlinkDetector()
 	bool foundEyes = false;
 	Rect face;
 	Mat prevGray;
-	//keep running loop until a face is found
-	/*
-	while (!foundFace || !foundEyes)
-	{
-		Mat prevFrame;
-		capture >> prevFrame;
-		foundFace = DetectFace(faceCascade, eyeCascade, prevFrame, face);
 
-		
-		cvtColor(prevFrame, prevGray, COLOR_BGR2GRAY);
-		equalizeHist(prevGray, prevGray);
-
-		foundEyes = DetectFeaturePoints(prevGray, face, eyeCascade,prevPoints);
-	}
-	*/
 	while (!basicDetection(prevGray, face,prevPoints));
 	cout << BlinkDetector::eyeOne.cols << endl;
 	cout << BlinkDetector::eyeTwo.cols << endl;
 	
-
-
 	int min_points = 7;
 	int rows = prevGray.rows;
 	int columns = prevGray.cols;

@@ -93,13 +93,12 @@ bool BlinkDetector::OpenEyeDetectedFromTemplate(Mat &image, Mat &resultImage, bo
 bool BlinkDetector::UserBlinked()
 {
 	bool blinked = false;
-	if (previousEyeStatus.first || previousEyeStatus.second)
+	if((previousEyeStatus.first&& !currentEyeStatus.first)||
+		(previousEyeStatus.second && !currentEyeStatus.second))
 	{
-		if (!currentEyeStatus.first || !currentEyeStatus.second)
-		{
-			blinked = true;
-			blinkCounter++;
-		}
+		blinked = true;
+		blinkCounter++;
+		
 	}
 	previousEyeStatus =currentEyeStatus;
 	return blinked;
@@ -109,4 +108,3 @@ bool BlinkDetector::GetStatus()
 	
 	return currentEyeStatus.first && currentEyeStatus.second;
 }
-
